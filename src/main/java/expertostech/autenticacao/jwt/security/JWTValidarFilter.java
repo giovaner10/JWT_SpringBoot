@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -41,8 +42,12 @@ public class JWTValidarFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-        super.doFilterInternal(request, response, chain);
+        String token = atributo.replace(ATRIBUTO_PREFIXO, "");
+
+        UsernamePasswordAuthenticationToken authenticationToken = getAuthenticationToken(token);
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        chain.doFilter(request, response);
     }
 
    private UsernamePasswordAuthenticationToken getAuthenticationToken(String token){
