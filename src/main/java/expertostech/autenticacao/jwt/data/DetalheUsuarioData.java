@@ -12,8 +12,8 @@ public class DetalheUsuarioData implements UserDetails {
 
     private final Optional<UsuarioModel> usuario;
 
-    public DetalheUsuarioData(Optional<UsuarioModel> usuarioModel) {
-        this.usuario = usuarioModel;
+    public DetalheUsuarioData(Optional<UsuarioModel> usuario) {
+        this.usuario = usuario;
     }
 
     @Override

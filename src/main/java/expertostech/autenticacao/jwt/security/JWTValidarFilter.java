@@ -19,7 +19,6 @@ public class JWTValidarFilter extends BasicAuthenticationFilter {
     public static final String HEADER_ATRIBUTO = "Authorization";
     public static final String ATRIBUTO_PREFIXO = "Bearer ";
 
-
     public JWTValidarFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
@@ -29,40 +28,39 @@ public class JWTValidarFilter extends BasicAuthenticationFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
 
+        String atributo = request.getHeader(HEADER_ATRIBUTO);
 
-        String atributo = request.getHeader(ATRIBUTO_PREFIXO);
-
-        if( atributo == null){
+        if (atributo == null) {
             chain.doFilter(request, response);
             return;
         }
 
-        if(!atributo.startsWith(ATRIBUTO_PREFIXO)){
+        if (!atributo.startsWith(ATRIBUTO_PREFIXO)) {
             chain.doFilter(request, response);
             return;
         }
 
         String token = atributo.replace(ATRIBUTO_PREFIXO, "");
-
+        System.out.println(token);
         UsernamePasswordAuthenticationToken authenticationToken = getAuthenticationToken(token);
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         chain.doFilter(request, response);
     }
 
-   private UsernamePasswordAuthenticationToken getAuthenticationToken(String token){
+    private UsernamePasswordAuthenticationToken getAuthenticationToken(String token) {
+
         String usuario = JWT.require(Algorithm.HMAC512(JWTAutenticarFilter.TOKEN_SENHA))
                 .build()
                 .verify(token)
                 .getSubject();
 
-        if(usuario == null){
+        if (usuario == null) {
             return null;
         }
 
-        return new UsernamePasswordAuthenticationToken(usuario, null, new ArrayList<>());
-   }
-
+        return new UsernamePasswordAuthenticationToken(usuario,null, new ArrayList<>());
+    }
 }
 
 

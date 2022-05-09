@@ -2,6 +2,7 @@ package expertostech.autenticacao.jwt.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name="Usuario")
+@Getter
 public class UsuarioModel {
 
     @Id
@@ -19,4 +21,9 @@ public class UsuarioModel {
     private String login;
     private String password;
 
+
+    public UsuarioModel(String login, String password) {
+        this.login = login;
+        this.password = password;
+    }
 }

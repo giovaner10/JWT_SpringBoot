@@ -23,7 +23,7 @@ public class JWTAutenticarFilter extends UsernamePasswordAuthenticationFilter {
 
 
     public static final int TOKEN_EXPIRACAO = 600_000;
-    public static final String TOKEN_SENHA = "b76f9ffb-b06b-4497-a107-5bd27f4e0732";
+    public static final String TOKEN_SENHA = "463408a1-54c9-4307-bb1c-6cced559f5a7";
 
     private final AuthenticationManager authenticationManager;
 
@@ -31,38 +31,61 @@ public class JWTAutenticarFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
     }
 
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
-
         try {
-
-            UsuarioModel usuario = new ObjectMapper().readValue(request.getInputStream(), UsuarioModel.class);
+            UsuarioModel usuario = new ObjectMapper()
+                    .readValue(request.getInputStream(), UsuarioModel.class);
 
             return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    usuario.getLogin(), usuario.getPassword(), new ArrayList<>()
+                    usuario.getLogin(),
+                    usuario.getPassword(),
+                    new ArrayList<>()
             ));
 
         } catch (IOException e) {
-            throw new RuntimeException("Falha ao executar usuario", e);
+            throw new RuntimeException("Falha ao autenticar usuario", e);
         }
+
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
-                                            FilterChain chain, Authentication authResult) throws IOException, ServletException {
+                                            FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
 
         DetalheUsuarioData usuarioData = (DetalheUsuarioData) authResult.getPrincipal();
 
-        String token = JWT.create()
-                .withSubject(usuarioData.getUsername()) //pegando o usuario
-                .withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_EXPIRACAO))//definindo tempo de expiracao
-                .sign(Algorithm.HMAC512(TOKEN_SENHA));//a senha
+        String token = JWT.create().
+                withSubject(usuarioData.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_EXPIRACAO))
+                .sign(Algorithm.HMAC512(TOKEN_SENHA));
 
+        response.setHeader("access-control-expose-headers", "Authorization");
+        response.setHeader("Authorization", "Bearer " + token);
         response.getWriter().write(token);
         response.getWriter().flush();
+    }
 
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
 
+        response.setStatus(401);
+        response.setContentType("application/json");
+        response.getWriter().append(json());
+    }
+
+    private CharSequence json() {
+        long date = new Date().getTime();
+        return "{"
+                + "\"timestamp\": " + date + ", "
+                + "\"status\": 401, "
+                + "\"error\": \"Não autorizado\", "
+                + "\"message\": \"Email ou senha inválidos\", "
+                + "\"path\": \"/login\"}";
     }
 }
