@@ -28,9 +28,15 @@ public class JWTValidarFilter extends BasicAuthenticationFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
 
-        String atributo = request.getHeader(HEADER_ATRIBUTO);
+        String atributo = request.getParameter(HEADER_ATRIBUTO);
 
-        if (atributo == null) {
+        String header = request.getHeader(HEADER_ATRIBUTO);
+        System.out.println("header1 "+ header);
+
+
+        System.out.println("Header: " + atributo);
+
+        /*if (atributo == null) {
             chain.doFilter(request, response);
             return;
         }
@@ -38,10 +44,9 @@ public class JWTValidarFilter extends BasicAuthenticationFilter {
         if (!atributo.startsWith(ATRIBUTO_PREFIXO)) {
             chain.doFilter(request, response);
             return;
-        }
+        }*/
 
-        String token = atributo.replace(ATRIBUTO_PREFIXO, "");
-        System.out.println(token);
+        String token = atributo.substring(7);
         UsernamePasswordAuthenticationToken authenticationToken = getAuthenticationToken(token);
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -50,6 +55,7 @@ public class JWTValidarFilter extends BasicAuthenticationFilter {
 
     private UsernamePasswordAuthenticationToken getAuthenticationToken(String token) {
 
+//token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnaW92YW5lIiwiZXhwIjoxNjUyMTExNDMwfQ.UIIkxDjpa2Ikb6Z_0LtSFveUJnG1vDuI9Hhcnb84T9BkKhFdAG0yMESLU4cB1PV4iO0Om7lf0Fgkr5xk5dwhKg";
         String usuario = JWT.require(Algorithm.HMAC512(JWTAutenticarFilter.TOKEN_SENHA))
                 .build()
                 .verify(token)
