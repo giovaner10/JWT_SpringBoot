@@ -2,11 +2,11 @@ package expertostech.autenticacao.jwt.data;
 
 import expertostech.autenticacao.jwt.model.UsuarioModel;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DetalheUsuarioData implements UserDetails {
 
@@ -17,8 +17,9 @@ public class DetalheUsuarioData implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return new ArrayList<>();
+    public List<SimpleGrantedAuthority> getAuthorities() {
+        return usuario.orElse(new UsuarioModel()).getPerfis().stream().map(x -> new SimpleGrantedAuthority(x.getDescricao())).collect(Collectors.toList());
+
     }
 
     @Override
